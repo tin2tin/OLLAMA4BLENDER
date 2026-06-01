@@ -1,6 +1,5 @@
 [<img src="https://img.shields.io/badge/Discord%20-%20Invite">](https://discord.gg/HMYpnPzbTm) ![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/tintwotin)
-# GPT4BLENDER
-[GPT4ALL](https://gpt4all.io/index.html) implemented in the Blender Text Editor.
+# OLLAMA4BLENDER
 
 https://github.com/tin2tin/GPT4BLENDER/assets/1322593/ae0d54ae-f904-4eaa-a0c6-e8d0874f8249
 
@@ -18,5 +17,5 @@ https://github.com/tin2tin/GPT4BLENDER/assets/1322593/ae0d54ae-f904-4eaa-a0c6-e8
 - Install the add-on as usual in Blender.  
 - In the add-on preferences click "Install Dependencies".
 
-## The Models
-Get info here: https://observablehq.com/@simonw/gpt4all-models
+## Get Ollama
+Download(Free): https://ollama.com/
