@@ -1,0 +1,24 @@
+Task: Convert a screenplay or scene description into individual image-generation prompts, one per shot.
+
+PROMPT STRUCTURE (one line per shot — no line breaks within a prompt):
+[Camera angle], [Subject + full visual description], [Action or pose], [Environment + key props], [Lighting], [Style tags].
+
+CAMERA ANGLES: EXTREME CLOSE-UP · CLOSE-UP · MEDIUM CLOSE-UP · MEDIUM SHOT · MEDIUM WIDE · WIDE SHOT · EXTREME WIDE · AERIAL · LOW ANGLE · HIGH ANGLE · DUTCH ANGLE · OVER-THE-SHOULDER · POV
+
+CHARACTER DESCRIPTION (repeat in full every time a character appears — never use pronouns):
+Full name (gender, approximate age, skin tone, hair color & style, eye color, full outfit: garment type + fabric/texture + colors, footwear, notable accessories).
+
+LOCATION & LIGHTING:
+- Location: interior/exterior type, architectural style, era, key visible props.
+- Lighting: be specific — golden-hour backlight, overcast diffused, practical neon, candlelit, harsh midday sun, motivated by source (e.g. "lit by a single desk lamp casting upward shadows").
+- Time of day and weather when visible.
+
+STYLE TAGS (end every prompt with these):
+cinematic, photorealistic, anamorphic lens, shallow depth of field, 35mm film grain
+— or substitute a relevant style (e.g. "stylized, graphic novel ink, high contrast" for an animated project).
+
+OUTPUT RULES:
+1. One prompt per line. No numbering, no scene headers, no blank lines between prompts.
+2. Never use "she", "he", "they", "it" — always use the full name or object name.
+3. Every prompt must be self-contained: a reader with no context must understand the full image.
+4. No intro, no outro, no commentary.

@@ -29,7 +29,9 @@ OLLAMA_API_BASE = "http://localhost:11434/api"
 # --- GLOBAL STATE ---
 
 MODELS_CACHE = [("NONE", "Click Refresh to load", "")]
-SERVER_ONLINE = False 
+TEMPLATES_CACHE = [("PYTHON", "Python Coder", "")]
+TEMPLATES_DIR_STATE = {}  # filename -> mtime, used by folder watcher
+SERVER_ONLINE = False
 
 # --- UTILITIES (LOGGING) ---
 
@@ -38,77 +40,75 @@ def log_msg(msg):
 
 # --- TEMPLATES ---
 
-SYSTEM_TEMPLATES = {
-    'PYTHON': """You are a Blender Python expert. 
-RULES:
-1. Output valid Python code only.
-2. Return ONLY the code block.
-3. No explanations or conversational filler.""",
-
-    'FOUNTAIN': """Act as a professional screenwriter.
-RULES:
-1. Format: Standard Fountain (Scene Headings INT./EXT., Character names UPPERCASE).
-2. Style: "Show, don't tell".
-3. Output: Raw script text only. NO conversational filler.""",
-
-    'IMAGE': """Task: Convert the screenplay into a bulleted Shot List for image generation.
-
-INSTRUCTIONS:
-1. Format: A [SHOT TYPE] of [SUBJECT] ([VISUAL DETAILS]) [ACTION], [LIGHTING].
-2. Naming: Use full character names. Avoid pronouns (he/she) to ensure AI clarity.
-3. Visuals: Always include visual details (Gender, Age, Skin Tone, Hair Color/Style, Specific Clothing with textures/colors) inside parentheses after the name. Include situation, setting, location, light (time-of-day). 
-4. Structure: Single line per shot. No intro/outro text.
-""",
-
-    'SCREENPLAY_SHOTS': """You are a Pre-viz Layout Artist.
-Task: Insert [[SHOT: ...]] tags BEFORE every specific action line or dialogue block.
-
-CRITICAL FORMATTING RULE 1: INTERLEAVED OUTPUT
-You are FORBIDDEN from replacing the script text. You must output a pattern of: [SHOT TAG] followed by [ORIGINAL TEXT].
-
-CRITICAL FORMATTING RULE 2: SPACING
-You MUST insert an empty line BEFORE and AFTER every [[SHOT: ...]] tag.
-
-   WRONG:
-   [[SHOT: ...]]
-   Jane looks down.
-
-   CORRECT:
-   
-   [[SHOT: ...]]
-   
-   Jane looks down.
-
-INSTRUCTIONS FOR SHOT CONTENT:
-1. GRANULARITY: If a paragraph has multiple actions (e.g. "He stands. He screams."), split them into separate shots interleaved with the text.
-2. FULL DEFINITION: Every time a character appears (even a hand/eye), repeat: Name (Gender, Age, Skin Tone, Hair Color/Style, Specific Clothing with textures/colors). But leave out the elements not visible in the shot.
-3. NO MEMORY: Repeat the Location and Lighting in every single shot.
-4. You must write these prompts as a professional cinematographer.
-5. Format: Angle, Subject/Character, Situation, Setting, Location, Lighting (time of day), and Style.
-6. Please ensure that the elements mentionned in the prompts all are visible - if not the should be removed. Also, ensure the most dominant elements are mentioned right after the cam,era angle in the beginning of the prompt.
-7. Character Extraction & Parentheticals: Extract all characters. EVERY time a character is mentioned in an image prompt, you MUST insert a parenthetical immediately following their name containing their distinct visual elements. 
-8. Parenthetical Template: `Character Name (gender, age, face, hair, eyes, colors, clothes, colors)`. 
-9. Uniqueness & Consistency: Ensure no two characters look the same. Always include the full description parenthetical for character consistency, but ONLY include elements visible in that specific shot. Do the same for specific locations.
-
-EXAMPLE:
-   Input:
-   INT. LAB - DAY
-   Eva picks up the vial. She looks at it.
-   
-   Output:
-   INT. LAB - DAY
-
-   [[SHOT: Mid-shot of the hand of EVA (female, 20s, caucasian, pale, eyes hollow, blond, brown eyes, light blue shirt, blue jeans, red sneakers, red glasses) grabbing a glass vial in a bright white sterile lab]]
-
-   Eva picks up the vial.
-
-   [[SHOT: Close-up of EVA (female, 20s, caucasian, pale, eyes hollow, blond, brown eyes, light blue shirt, blue jeans, red sneakers, red glasses) staring intensely at the vial in a bright white sterile lab]]
-
-   She looks at it.
-   
-   
-"""
+TEMPLATE_DISPLAY_NAMES = {
+    'PYTHON': 'Python Coder',
+    'ADDON': 'Addon Developer',
+    'FOUNTAIN': 'Screenwriter',
+    'DIALOGUE': 'Dialogue Writer',
+    'CHARACTER': 'Character Development',
+    'TREATMENT': 'Story Treatment',
+    'IMAGE': 'Convert to Image Prompts',
+    'IDEOGRAM4': 'Ideogram 4 JSON',
+    'CINEMASCOPE_PROMPT': 'Cinemascope Prompt',
+    'LTX_VIDEO': 'LTX 2.3 Video Prompt',
+    'SCREENPLAY_SHOTS': 'Insert Shots into Screenplay',
+    'CINEMATIC_PROSE': 'Cinematic Prose Style',
+    'TTS_CLEANUP': 'TTS Cleanup',
+    'YOUTUBE_CONCEPT': 'YouTube: Concept',
+    'YOUTUBE_SCRIPT': 'YouTube: Script',
+    'YOUTUBE_SHOTS': 'YouTube: Shot List',
+    'YOUTUBE_BROLL': 'YouTube: B-Roll',
+    'YOUTUBE_EDIT': 'YouTube: Edit Plan',
+    'YOUTUBE_SOUND': 'YouTube: Sound Design',
+    'YOUTUBE_AUDIT': 'YouTube: Retention Audit',
 }
+
+def get_templates_dir():
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
+
+def refresh_templates_cache():
+    global TEMPLATES_CACHE
+    tdir = get_templates_dir()
+    items = []
+    if os.path.isdir(tdir):
+        for f in sorted(os.listdir(tdir)):
+            if f.lower().endswith('.txt'):
+                key = f[:-4]
+                display = TEMPLATE_DISPLAY_NAMES.get(key, key.replace('_', ' ').title())
+                items.append((key, display, ''))
+    TEMPLATES_CACHE = items if items else [("PYTHON", "Python Coder", "")]
+
+def get_template_items(self, context):
+    return TEMPLATES_CACHE
+
+def get_system_message(template_key):
+    filepath = os.path.join(get_templates_dir(), template_key + ".txt")
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            return f.read()
+    except Exception as e:
+        log_msg(f"Warning: Could not load template '{template_key}': {e}")
+        return ""
+
+def _watch_templates_dir():
+    global TEMPLATES_DIR_STATE
+    tdir = get_templates_dir()
+    if not os.path.isdir(tdir):
+        return 3.0
+    current = {}
+    for f in os.listdir(tdir):
+        if f.lower().endswith('.txt'):
+            try:
+                current[f] = os.path.getmtime(os.path.join(tdir, f))
+            except OSError:
+                pass
+    if current != TEMPLATES_DIR_STATE:
+        TEMPLATES_DIR_STATE = current
+        refresh_templates_cache()
+        for window in bpy.context.window_manager.windows:
+            for area in window.screen.areas:
+                area.tag_redraw()
+    return 3.0
 
 # --- UTILITIES ---
 
@@ -428,9 +428,9 @@ class LLM4BLENDER_OT_Generate(bpy.types.Operator):
             content = text.as_string().strip()
             if not content: return {'CANCELLED'}
 
-            if props.template_type in ['IMAGE', 'SCREENPLAY_SHOTS']:
-                prompt = f"Here is the screenplay content:\n\n{content}"
-                self._input_text = f"Process Script ({props.template_type})"
+            if props.template_type in ['IMAGE', 'IDEOGRAM4', 'CINEMASCOPE_PROMPT', 'LTX_VIDEO', 'SCREENPLAY_SHOTS']:
+                prompt = f"Here is the content:\n\n{content}"
+                self._input_text = f"Process ({props.template_type})"
             else:
                 prompt = f"{props.rewrite_prefix}:\n\n{content}"
                 self._input_text = f"{props.rewrite_prefix} (File)"
@@ -439,7 +439,7 @@ class LLM4BLENDER_OT_Generate(bpy.types.Operator):
             if not prompt: return {'CANCELLED'}
             self._input_text = prompt
 
-        system_msg = SYSTEM_TEMPLATES.get(props.template_type, SYSTEM_TEMPLATES['PYTHON'])
+        system_msg = get_system_message(props.template_type)
         messages = [{"role": "system", "content": system_msg}]
 
         if self.mode == 'CHAT':
@@ -669,6 +669,62 @@ class LLM4BLENDER_OT_TestSound(Operator):
     def execute(self, context):
         play_notification_sound(context); return {'FINISHED'}
 
+class LLM4BLENDER_OT_EditTemplate(bpy.types.Operator):
+    bl_idname = "llm4blender.edit_template"
+    bl_label = "Edit Template"
+    bl_description = "Open current template file in the text editor"
+
+    def execute(self, context):
+        props = context.scene.llm4blender_props
+        filepath = os.path.join(get_templates_dir(), props.template_type + ".txt")
+        if not os.path.exists(filepath):
+            self.report({'ERROR'}, f"Template file not found: {filepath}")
+            return {'CANCELLED'}
+        norm_path = os.path.normpath(filepath)
+        for text in bpy.data.texts:
+            if text.filepath and os.path.normpath(bpy.path.abspath(text.filepath)) == norm_path:
+                context.space_data.text = text
+                return {'FINISHED'}
+        text = bpy.data.texts.load(filepath)
+        context.space_data.text = text
+        return {'FINISHED'}
+
+class LLM4BLENDER_OT_AddTemplate(bpy.types.Operator):
+    bl_idname = "llm4blender.add_template"
+    bl_label = "Add Template"
+    bl_description = "Create a new template file in the templates folder"
+
+    name: bpy.props.StringProperty(name="Name", default="My Template")
+
+    def execute(self, context):
+        name = self.name.strip()
+        if not name:
+            self.report({'ERROR'}, "Template name cannot be empty.")
+            return {'CANCELLED'}
+        tdir = get_templates_dir()
+        os.makedirs(tdir, exist_ok=True)
+        filepath = os.path.join(tdir, name + ".txt")
+        text = bpy.data.texts.new(name + ".txt")
+        text.filepath = filepath
+        context.space_data.text = text
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        self.layout.prop(self, "name")
+
+class LLM4BLENDER_OT_RefreshTemplates(bpy.types.Operator):
+    bl_idname = "llm4blender.refresh_templates"
+    bl_label = "Refresh Templates"
+    bl_description = "Reload template list from the templates folder"
+
+    def execute(self, context):
+        refresh_templates_cache()
+        context.region.tag_redraw()
+        return {'FINISHED'}
+
 class LLM4BLENDER_PT_Panel(bpy.types.Panel):
     bl_label = "LLM4 Blender"
     bl_idname = "LLM4BLENDER_PT_Panel"
@@ -725,7 +781,11 @@ class LLM4BLENDER_PT_Panel(bpy.types.Panel):
                 main_col.label(text="No models found", icon='INFO'); return            
             
             box = main_col.box()
-            box.prop(props, "template_type", text="Role")
+            row = box.row(align=True)
+            row.prop(props, "template_type", text="Role")
+            row.operator("llm4blender.edit_template", text="", icon='GREASEPENCIL')
+            row.operator("llm4blender.add_template", text="", icon='ADD')
+            row.operator("llm4blender.refresh_templates", text="", icon='FILE_REFRESH')
 
             box = main_col.box()
             box = box.column(align=True)
@@ -739,14 +799,24 @@ class LLM4BLENDER_PT_Panel(bpy.types.Panel):
             box = main_col.box()
             box = box.column(align=True)
             if props.template_type == 'PYTHON': rewrite_label = "Refactor Code"
+            elif props.template_type == 'ADDON': rewrite_label = "Refactor Addon"
             elif props.template_type == 'FOUNTAIN': rewrite_label = "Rewrite Scene"
+            elif props.template_type == 'DIALOGUE': rewrite_label = "Rewrite Dialogue"
+            elif props.template_type == 'CHARACTER': rewrite_label = "Revise Character"
+            elif props.template_type == 'TREATMENT': rewrite_label = "Revise Treatment"
             elif props.template_type == 'IMAGE': rewrite_label = "Generate Shot List"
+            elif props.template_type == 'IDEOGRAM4': rewrite_label = "Convert to Ideogram 4 JSON"
+            elif props.template_type == 'CINEMASCOPE_PROMPT': rewrite_label = "Generate Cinemascope Prompts"
+            elif props.template_type == 'LTX_VIDEO': rewrite_label = "Generate LTX 2.3 Prompts"
             elif props.template_type == 'SCREENPLAY_SHOTS': rewrite_label = "Insert Shots into Script"
-            #else: rewrite_label = "Rewrite File"
+            elif props.template_type == 'CINEMATIC_PROSE': rewrite_label = "Rewrite as Cinematic Prose"
+            elif props.template_type == 'TTS_CLEANUP': rewrite_label = "Convert to TTS"
+            elif props.template_type.startswith('YOUTUBE_'): rewrite_label = "Generate YouTube Content"
+            else: rewrite_label = "Rewrite File"
             
             box.label(text=rewrite_label)
             col = box.column(align=True)
-            if props.template_type not in ['IMAGE', 'SCREENPLAY_SHOTS']:
+            if props.template_type not in ['IMAGE', 'IDEOGRAM4', 'SCREENPLAY_SHOTS']:
                 #col.prop(props, "rewrite_prefix", text="")
                 col.textbox(props, "rewrite_prefix", placeholder='Rework this...')
             
@@ -812,15 +882,7 @@ class LLM4BLENDER_PT_Panel(bpy.types.Panel):
 
 class LLM4BlenderProperties(bpy.types.PropertyGroup):
     mode: EnumProperty(items=[('CHAT', "Chat", ""), ('IMPORT', "Settings", "")], default='CHAT')
-    template_type: EnumProperty(
-        items=[
-            ('PYTHON', "Python Coder", ""), 
-            ('FOUNTAIN', "Screenwriter", ""), 
-            ('IMAGE', "Convert to Image Prompts", ""),
-            ('SCREENPLAY_SHOTS', "Insert Shots into Screenplay", "") 
-        ],
-        default='PYTHON'
-    )
+    template_type: EnumProperty(name="Template", items=get_template_items)
     prompt_input: StringProperty(name="Prompt", default="")
     rewrite_prefix: StringProperty(name="Prefix", default="")
     model_selector: EnumProperty(name="Model", items=get_cached_models)
@@ -843,16 +905,21 @@ classes = (
     LLM4BLENDER_OT_SessionControl, LLM4BLENDER_OT_TestSound, ChatHistoryItem,
     LLM4BlenderProperties, LLM4BLENDER_OT_Generate, LLM4BLENDER_OT_RemoveHistory,
     LLM4BLENDER_OT_CopyHistory, LLM4BLENDER_OT_ImportGGUF, LLM4BLENDER_OT_RefreshModels,
+    LLM4BLENDER_OT_EditTemplate, LLM4BLENDER_OT_AddTemplate, LLM4BLENDER_OT_RefreshTemplates,
     LLM4BLENDER_PT_Panel,
 )
 
 def register():
+    refresh_templates_cache()
     for cls in classes: bpy.utils.register_class(cls)
     bpy.types.Scene.llm4blender_props = PointerProperty(type=LLM4BlenderProperties)
-    if not MODELS_CACHE or MODELS_CACHE[0][0] == "NONE": 
+    if not MODELS_CACHE or MODELS_CACHE[0][0] == "NONE":
         bpy.app.timers.register(lambda: (update_model_cache(), None)[1], first_interval=0.5)
+    bpy.app.timers.register(_watch_templates_dir, first_interval=3.0, persistent=True)
 
 def unregister():
+    if bpy.app.timers.is_registered(_watch_templates_dir):
+        bpy.app.timers.unregister(_watch_templates_dir)
     for cls in reversed(classes): bpy.utils.unregister_class(cls)
     del bpy.types.Scene.llm4blender_props
 

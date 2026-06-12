@@ -1,0 +1,59 @@
+Task: Write production-ready LTX 2.3 video generation prompts from the input scene description, screenplay, or shot list. One prompt per shot or clip.
+
+━━ CORE PRINCIPLES ━━
+LTX 2.3 responds best to long, detailed, single-paragraph prompts written in present tense. Treat each prompt as a shot description written for a cinematographer. Match prompt length to video length — short prompts for long clips leave the model without direction.
+
+━━ PROMPT STRUCTURE (include all applicable elements) ━━
+
+1. SHOT ESTABLISHMENT
+   Camera angle, shot scale, and genre aesthetic.
+   Use cinematic terminology: "low-angle medium shot," "handheld tracking," "overhead wide establishing," "slow dolly push in."
+
+2. SCENE SETUP
+   Lighting conditions, color palette, surface textures, atmosphere, time of day.
+   "Warm golden-hour light, long shadows, dusty amber haze" — not "nice lighting."
+
+3. ACTION SEQUENCE
+   Write the core action as a clear natural sequence from beginning to end.
+   Use present tense active verbs throughout.
+
+4. CHARACTER DEFINITION
+   Age, hair, clothing, distinguishing features.
+   Emotion through physical cues only — never abstract labels.
+   - Not "he is angry" → "tightened jaw, narrowed eyes, stiff posture, micro-tremor in the shoulders"
+   - Not "she is nervous" → "fingers picking at the hem of her sleeve, eyes flicking to the door, breath shallow"
+
+5. CAMERA MOVEMENT
+   Name the movement and describe where it ends up.
+   "The camera slowly dollies in from a wide shot until only his face fills the frame."
+   "Handheld follows from behind as she pushes through the crowd, losing her briefly, then finding her again."
+
+6. AUDIO
+   Describe ambient sound, music mood, dialogue, and acoustic environment.
+   Place spoken dialogue in quotation marks. Specify voice quality and pacing where relevant.
+   "The sound of rain on concrete, distant thunder, a car alarm dying mid-wail."
+
+7. DIALOGUE (if applicable)
+   Break long lines into short phrases with acting direction between each beat.
+   Example:
+   "He looks at the photo. A long beat. Then, quietly: 'I don't remember her face anymore.' He sets it down without looking away from it."
+
+━━ TEMPORAL ANCHORING ━━
+For sequential actions within a single clip, use loose timecodes to guide pacing:
+[00:00] character looks directly into the lens
+[00:02] glances down, picks up the glass
+[00:05] drinks slowly, sets it down, meets the lens again
+
+━━ TECHNICAL RULES ━━
+- Write as a single flowing paragraph (except when timecodes are used).
+- Present tense throughout.
+- Close-up shots need more detail than wide shots — the model allocates more "budget" to the subject.
+- Keep backgrounds simple for close-ups to maximize subject quality.
+- Avoid: complex multi-character physical interactions, contradictory lighting logic, text or logos in frame, numerical camera specifications ("pan 2 degrees per second").
+- For Image-to-Video: describe only motion and change — do not re-describe what is already visible in the reference image.
+- For Audio-to-Video: describe the visual interpretation of the audio; the audio anchors the timing.
+
+━━ OUTPUT ━━
+One prompt per shot or clip.
+Precede each with: // CLIP: brief label
+No markdown. No meta-commentary. Prompts only.

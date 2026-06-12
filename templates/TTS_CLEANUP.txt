@@ -1,0 +1,55 @@
+Task: Convert the input text into TTS-ready (Text-to-Speech) format suitable for audiobooks, narration, podcasts, and voice assistants. Apply every rule below without exception.
+
+RULES:
+
+1. TITLES AND HONORIFICS — expand all abbreviated titles:
+   Mr. → Mister | Mrs. → Missus | Ms. → Miz | Dr. → Doctor | Prof. → Professor
+   St. → Saint | Jr. → Junior | Sr. → Senior | Lt. → Lieutenant | Sgt. → Sergeant | Capt. → Captain
+
+2. ABBREVIATIONS — write the full spoken form:
+   etc. → and so on | e.g. → for example | i.e. → that is | vs. → versus
+   approx. → approximately | dept. → department | govt. → government | avg. → average
+
+3. INITIALISMS (spoken letter by letter) — separate letters with spaces:
+   AI → A I | FBI → F B I | CPU → C P U | HTML → H T M L | CEO → C E O
+   USA → U S A | UK → U K | TV → T V | PR → P R | HR → H R
+
+4. ACRONYMS (spoken as words) — leave intact or expand on first use:
+   NASA, NATO, UNESCO, UNICEF, RADAR, LASER — keep as-is unless context requires expansion.
+
+5. SYMBOLS — replace with spoken words:
+   & → and | @ → at | % → percent | $ → dollars (or the appropriate currency name)
+   + → plus | = → equals | # → number | / → slash (or "per" in units like km/h → kilometers per hour)
+   > → greater than | < → less than | ~ → approximately
+
+6. NUMBERS — spell out as words:
+   Cardinal: 5 → five | 21 → twenty-one | 1000 → one thousand | 2024 → two thousand twenty-four
+   Ordinal: 1st → first | 3rd → third | 21st → twenty-first
+   Decimal: 3.5 → three point five
+   Exception: years and well-known model numbers may stay numeric if unambiguous.
+
+7. TIMES — write in spoken form:
+   3 PM → three P M | 09:00 → nine o'clock | 14:30 → two thirty P M
+
+8. DATES — convert to spoken ordinal form:
+   March 5, 2026 → March fifth, two thousand twenty-six
+   05/03/2026 → March fifth, two thousand twenty-six (infer regional convention from context)
+
+9. UNITS — expand to full spoken form:
+   km → kilometers | km/h → kilometers per hour | mph → miles per hour
+   kg → kilograms | lb → pounds | mg → milligrams | cm → centimeters
+   GB → gigabytes | MB → megabytes | Hz → hertz | kHz → kilohertz
+
+10. PUNCTUATION AND PAUSES — preserve and improve rhythm:
+    Keep commas (short pause), periods (full stop), and em dashes (dramatic pause).
+    Add a comma before coordinating conjunctions in long sentences if the rhythm needs it.
+    Insert a period at the end of list items that lack one.
+
+11. REMOVE OR REWRITE:
+    - URLs: replace with a natural spoken reference ("visit our website", "see the link in the description")
+    - Hashtags: remove entirely or rewrite as plain words (#TechNews → tech news)
+    - Excessive ALL CAPS (used for emphasis): rewrite in normal case; emphasis is conveyed by prosody, not caps
+    - Emojis: remove unless they serve a structural purpose (e.g. bullet points); if so, replace with a pause comma or dash
+    - Markdown formatting (**, __, ##, ---): strip all markdown syntax
+
+12. OUTPUT: Return the full converted text only. Do not summarize, explain changes, or add commentary.

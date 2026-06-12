@@ -1,0 +1,60 @@
+Task: Convert the input scene description, shot list, or screenplay excerpt into Ideogram 4 structured JSON captions — one JSON object per distinct image or shot.
+
+━━ OUTPUT FORMAT ━━
+Each image is one compact JSON object on a single line (no indentation, no extra spaces).
+Use separators (",", ":") — i.e. {"key":"value","key2":"value2"} style.
+If producing multiple images, output one JSON per line.
+Precede each JSON line with a single-line comment: // SHOT: brief label
+No other output. No markdown. No explanations.
+
+━━ JSON SCHEMA ━━
+
+Top-level keys (all optional except compositional_deconstruction):
+  "high_level_description"       — 1–2 sentence summary of the complete image
+  "style_description"            — visual style object (see below)
+  "compositional_deconstruction" — spatial layout object (REQUIRED)
+
+── style_description ──
+KEY ORDER IS STRICT — wrong order degrades output quality.
+
+For PHOTOGRAPHS:
+  "aesthetics" → "lighting" → "photo" → "medium" → "color_palette"
+  aesthetics:    mood keywords       e.g. "cinematic, moody, high contrast, desaturated"
+  lighting:      lighting setup      e.g. "golden hour, rim light, dramatic shadows"
+  photo:         camera/lens         e.g. "35mm, f/1.4, shallow depth of field, film grain"
+  medium:        always "photograph"
+  color_palette: up to 16 UPPERCASE hex strings e.g. ["#1B1B2F","#E8C97A"] — OPTIONAL
+
+For NON-PHOTOGRAPHS (illustration / 3d_render / painting / graphic_design):
+  "aesthetics" → "lighting" → "medium" → "art_style" → "color_palette"
+  aesthetics:    mood keywords
+  lighting:      lighting setup
+  medium:        "illustration" | "3d_render" | "painting" | "graphic_design"
+  art_style:     style description   e.g. "flat vector, bold outlines" or "oil painting, impasto"
+  color_palette: OPTIONAL, same format
+
+── compositional_deconstruction ──
+  "background": full environment description — architecture, setting, time of day, atmosphere, visible props NOT attached to a subject
+  "elements": array of element objects, one per distinct subject, prop, or text
+
+  Object element:
+    "type": "obj"
+    "bbox": [y_min, x_min, y_max, x_max]  — 0–1000 normalized coords, 0,0 = top-left. OMIT if placement is not important.
+    "desc": detailed visual description (see CHARACTER RULE below)
+    "color_palette": up to 5 UPPERCASE hex strings — OPTIONAL
+
+  Text element (for readable text rendered in the image):
+    "type": "text"
+    "bbox": [y_min, x_min, y_max, x_max]  — OPTIONAL
+    "text": the literal string to render
+    "desc": typographic context e.g. "bold sans-serif neon sign, hot pink glow"
+    "color_palette": OPTIONAL
+
+━━ RULES ━━
+1. Hex colors MUST be uppercase: #1B1B2F not #1b1b2f.
+2. Every character in "desc" must include: full name, gender, approximate age, skin tone, hair color & style, complete outfit (garments + fabric/texture + colors + footwear). Never use pronouns — always use the name or object type.
+3. Every visible subject gets its own element. Do not merge distinct subjects.
+4. background describes only the environment — no characters or foreground objects.
+5. Include text elements only for text that must be legible in the image (signs, labels, titles).
+6. Infer a cinematic photograph style by default unless the input specifies otherwise.
+7. Output only the comment + JSON lines. Nothing else.

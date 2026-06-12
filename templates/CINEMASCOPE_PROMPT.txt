@@ -1,0 +1,51 @@
+Task: Generate cinemascope image-generation prompts from the input scene description or screenplay. One prompt per shot, written as a single cohesive paragraph with no headings or line breaks.
+
+━━ PROMPT STRUCTURE (follow this exact sequence) ━━
+1. Format & Composition: "Cinemascope 2.39:1 composition," then camera angle/shot type and spatial placement of key elements.
+2. Primary Subject: Main character or object with full parenthetical descriptor (see CHARACTER RULE).
+3. Action, Emotion & Motion: What the subject is doing, exact facial expression, physical stance.
+4. Secondary Subject / Background Elements: Supporting characters or structural details with frame position.
+5. Environment & Atmosphere: Physical textures, fog, rain, dust, key props — tactile and specific.
+6. Lighting & Time of Day: Named light source, light color, shadow behavior, explicit time of day.
+7. Cinematographic Style & Lens: Genre aesthetic, depth of field, lens specification.
+
+━━ CHARACTER RULE: STRICT PARENTHETICAL CONSISTENCY ━━
+Every time a character appears — even partially (a hand, an eye) — include the full parenthetical immediately after the name. Include only elements visible in that specific framing.
+
+Template: Character Name (gender, age, face shape/features, hair style/color, eye color, skin tone, clothing: garments + fabric/texture + colors, specific gear or props)
+
+Example: "...Shay (young female, 16, lean olive-toned face, sharp cheekbones, tired amber-brown eyes with dark circles, dark chestnut braid with shaved side haircut, patched charcoal-gray survival jacket, black nasal cannula connected to a weathered grey metal oxygen tank with black shoulder straps)..."
+
+Never use pronouns (he/she/they). Always use the full name.
+
+━━ FRAMING AND BLOCKING ━━
+Place all subjects explicitly using thirds and halves: "on the right third of the frame," "centered in the foreground," "on the left half of the frame."
+Layer depth: foreground, midground, and background elements.
+Camera angles: low angle (power/scale), extreme close-up (intensity), wide aerial (scope), Dutch angle (unease).
+
+Shot types: EXTREME CLOSE-UP - CLOSE-UP - MEDIUM CLOSE-UP - MEDIUM SHOT - MEDIUM WIDE - WIDE - EXTREME WIDE - LOW ANGLE - HIGH ANGLE - DUTCH ANGLE - OVER-THE-SHOULDER - POV - TWO-SHOT - INSERT
+
+━━ SENSORY AND VISUAL DESCRIPTORS ━━
+No abstract or emotional words. The generator cannot paint "grief" — give it physical geometry.
+- Instead of "he feels sad": "looking down, jaw slack, shoulders dropped inward."
+- Textures: "rusted industrial steel," "bubbling green algae," "cracked concrete," "wet metallic floor."
+- No vague words or comparisons. Only direct physical attributes.
+
+━━ LIGHTING ━━
+Every prompt must contain: a named light source + light color + time of day.
+Light source examples: "harsh white industrial spotlights," "warm yellow oil lanterns," "glowing green computer terminal light," "sunbeams cutting through broken windows," "neon pink sign, flickering."
+Time of day: "early morning sunrise," "midday," "late afternoon golden hour," "dark dusk," "midnight."
+
+━━ LENS GUIDE ━━
+Close-up shots: "shot on 50mm lens" or "shot on 85mm lens" (shallow depth of field, subject isolation).
+Wide shots: "shot on 24mm lens" or "shot on 18mm lens" (deep depth of field, environment emphasis).
+Anamorphic: "shot on 50mm anamorphic lens" (oval bokeh, horizontal lens flares, classic widescreen look).
+
+━━ STYLE TAGS ━━
+End each prompt with style keywords appropriate to the project.
+Default cinematic: "cinematic realism, ultra-detailed, shallow depth of field, anamorphic lens flare, film grain."
+Genre variants: "post-apocalyptic cinematic masterpiece" / "neo-noir high-contrast shadows" / "cinematic dystopian sci-fi realism."
+
+━━ OUTPUT ━━
+One prompt per line. Precede each with: // SHOT: brief label
+No markdown, no numbered lists, no extra commentary.
