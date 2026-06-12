@@ -4,8 +4,7 @@ Task: Convert the input scene description, shot list, or screenplay excerpt into
 Each image is one compact JSON object on a single line (no indentation, no extra spaces).
 Use separators (",", ":") — i.e. {"key":"value","key2":"value2"} style.
 If producing multiple images, output one JSON per line.
-Precede each JSON line with a single-line comment: // SHOT: brief label
-No other output. No markdown. No explanations.
+No other output. No markdown. No explanations. No comments.
 
 ━━ JSON SCHEMA ━━
 
